@@ -106,24 +106,8 @@ private:
 	int size_;
 };
 
-int main() {
-
-
-	cout << "인벤토리 관리 시스템에 오신 것을 환영합니다!" << endl;
-	cout << "인벤토리 용량을 입력해주세요" << endl;
-	int capacity;
-	cin >> capacity;
-	if (cin.fail()) {
-		cout << "오류: 숫자만 입력 가능합니다!" << std::endl;
-		cout << "기본 용량 10으로 설정됩니다." << endl;
-		cin.clear();
-		cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
-	}
-
-	Inventory<Item>* inventory = new Inventory<Item>(capacity);
-
+void InventoryMenu(Inventory<Item>* inventory) {
 	while (true) {
-
 		cout << "인벤토리 관리 시스템" << endl;
 		cout << "1. 아이템 추가" << endl;
 		cout << "2. 아이템 제거" << endl;
@@ -132,18 +116,24 @@ int main() {
 		cout << "5. 아이템 정렬" << endl;
 		cout << "6. 인벤토리 복제" << endl;
 		cout << "7. 종료" << endl;
+
 		int choice;
-		cin >> choice;
+		if (!(cin >> choice)) {
+			cout << "오류: 숫자를 입력해주세요." << endl;
+			cin.clear();
+			cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+			continue;
+		}
+		cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
 		if (choice == 1) {
 			while (true) {
 				string name;
 				int price;
-				cout << "아이템 이름과 가격을 입력하세요(입력을 중지하시려면 0) : ";
-				cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
-				getline(cin, name);
-				if (name == "0") {
+				cout << "아이템 이름을 입력하세요(입력을 중지하시려면 0) : ";
+				if (!getline(cin, name) || name == "0") {
 					break;
 				}
+				cout << "아이템 가격을 입력하세요 : ";
 				cin >> price;
 				if (cin.fail()) {
 					cout << "오류: 숫자만 입력 가능합니다!" << std::endl;
@@ -151,40 +141,81 @@ int main() {
 					cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
 					break;
 				}
+				cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+
 				Item item(name, price);
 				inventory->addItem(item);
+				cout << "아이템이 추가되었습니다." << endl;
+				item.printInfo();
 			}
 		}
-		if (choice == 2) {
+		else if (choice == 2) {
 			inventory->RemoveItem();
 			cout << "아이템이 제거되었습니다." << endl;
 		}
-		if (choice == 3) {
+		else if (choice == 3) {
 			inventory->PrintAllItems();
 			cout << "현재 용량 : " << inventory->getCapacity() << endl;
 		}
-		if (choice == 4) {
+		else if (choice == 4) {
 			int newCapacity;
 			cout << "새로운 인벤토리 용량을 입력하세요 : ";
 			cin >> newCapacity;
+			if (cin.fail()) {
+				cout << "오류: 숫자만 입력 가능합니다!" << std::endl;
+				cin.clear();
+				cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+				break;
+			}
 			inventory->Resize(newCapacity);
 			cout << "인벤토리가 확장되었습니다. 현재 용량 : " << inventory->getCapacity() << endl;
+			cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
 		}
-		if (choice == 5) {
+		else if (choice == 5) {
 			inventory->SortItems();
 			cout << "아이템이 가격순으로 정렬되었습니다." << endl;
 		}
-		if (choice == 6) {
+		else if (choice == 6) {
 			Inventory<Item>* copiedInventory = new Inventory<Item>(*inventory);
 			cout << "인벤토리가 복제되었습니다. 복제된 인벤토리의 아이템: " << endl;
 			copiedInventory->PrintAllItems();
 			delete copiedInventory;
 		}
-		if (choice == 7) {
+		else if (choice == 7) {
 			cout << "프로그램을 종료합니다." << endl;
 			break;
 		}
+		else {
+			cout << "잘못된 선택입니다. 다시 시도해주세요." << endl;
+			cin.clear();
+			cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+		}
+
 	}
+}
+
+int startInventorySystem() {
+	cout << "인벤토리 관리 시스템에 오신 것을 환영합니다!" << endl;
+	cout << "인벤토리 용량을 입력해주세요" << endl;
+	int capacity;
+	cin >> capacity;
+	if (cin.fail()) {
+		cout << "오류: 숫자만 입력 가능합니다!" << std::endl;
+		cout << "기본 용량 10으로 설정됩니다." << endl;
+	}
+	cin.clear();
+	cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+
+	return capacity > 0 ? capacity : 10;
+}
+
+int main() {
+
+	Inventory<Item>* inventory = new Inventory<Item>(startInventorySystem());
+
+	InventoryMenu(inventory);
+
 	delete inventory;
+
 	return 0;
 }
