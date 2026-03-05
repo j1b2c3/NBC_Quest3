@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -108,7 +108,19 @@ private:
 
 int main() {
 
-	Inventory<Item>* inventory = new Inventory<Item>();
+
+	cout << "인벤토리 관리 시스템에 오신 것을 환영합니다!" << endl;
+	cout << "인벤토리 용량을 입력해주세요" << endl;
+	int capacity;
+	cin >> capacity;
+	if (cin.fail()) {
+		cout << "오류: 숫자만 입력 가능합니다!" << std::endl;
+		cout << "기본 용량 10으로 설정됩니다." << endl;
+		cin.clear();
+		cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+	}
+
+	Inventory<Item>* inventory = new Inventory<Item>(capacity);
 
 	while (true) {
 
@@ -123,12 +135,25 @@ int main() {
 		int choice;
 		cin >> choice;
 		if (choice == 1) {
-			string name;
-			int price;
-			cout << "아이템 이름과 가격을 입력하세요 : ";
-			cin >> name >> price;
-			Item item(name, price);
-			inventory->addItem(item);
+			while (true) {
+				string name;
+				int price;
+				cout << "아이템 이름과 가격을 입력하세요(입력을 중지하시려면 0) : ";
+				cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+				getline(cin, name);
+				if (name == "0") {
+					break;
+				}
+				cin >> price;
+				if (cin.fail()) {
+					cout << "오류: 숫자만 입력 가능합니다!" << std::endl;
+					cin.clear();
+					cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+					break;
+				}
+				Item item(name, price);
+				inventory->addItem(item);
+			}
 		}
 		if (choice == 2) {
 			inventory->RemoveItem();
